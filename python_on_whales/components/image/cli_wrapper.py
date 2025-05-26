@@ -558,7 +558,11 @@ class ImageCLI(DockerCLICaller):
         run(full_cmd, capture_stdout=quiet, capture_stderr=quiet)
         return Image(self.client_config, image_name)
 
-    def push(self, x: Union[str, Iterable[str]], quiet: bool = False) -> None:
+    def push(
+        self,
+        x: Union[str, Iterable[str]],
+        quiet: bool = False,
+    ) -> Optional[Iterable[str]]:
         """Push a tag or a repository to a registry
 
         Alias: `docker.push(...)`
@@ -566,9 +570,11 @@ class ImageCLI(DockerCLICaller):
         Parameters:
             x: Tag(s) or repo(s) to push. Can be a string or an iterable of strings.
                 If it's an iterable, python-on-whales will push all the images with
-                multiple threads. The progress bars might look strange as multiple
-                processes are drawing on the terminal at the same time.
+                multiple threads.
             quiet: If you don't want to see the progress bars.
+
+        Returns:
+            Iterator that yields the output of the CLI. `None` if `quiet` is `True`.
 
         # Raises
             `python_on_whales.exceptions.NoSuchImage` if one of the images does not exist.
@@ -579,20 +585,33 @@ class ImageCLI(DockerCLICaller):
         self.inspect(images)
 
         if images == []:
-            return
+            return None
         elif len(images) == 1:
-            self._push_single_tag(images[0], quiet)
-        elif len(images) >= 2:
+            return self._push_single_tag(images[0], quiet)
+        else:
             pool = ThreadPool(4)
+            # TODO: Can we stream logs for multiple image pushes?
             pool.starmap(self._push_single_tag, ((img, quiet) for img in images))
             pool.close()
             pool.join()
+            return None
 
-    def _push_single_tag(self, tag_or_repo: str, quiet: bool):
+    def _push_single_tag(
+        self,
+        tag_or_repo: str,
+        quiet: bool,
+    ) -> Optional[Iterable[str]]:
         full_cmd = self.docker_cmd + ["image", "push"]
         full_cmd.add_flag("--quiet", quiet)
         full_cmd.append(tag_or_repo)
-        run(full_cmd, capture_stdout=quiet, capture_stderr=quiet)
+        if quiet:
+            run(full_cmd)
+            return None
+        else:
+            return (
+                line.decode(errors="replace")
+                for _, line in stream_stdout_and_stderr(full_cmd)
+            )
 
     def remove(
         self,
