@@ -20,7 +20,7 @@ def test_login_logout(docker_client: DockerClient, docker_registry_without_login
     busybox_image = docker_client.pull("busybox")
     busybox_image.tag(f"{docker_registry_without_login}/my_busybox")
     with pytest.raises(DockerException):
-        docker_client.push(f"{docker_registry_without_login}/my_busybox")
+        docker_client.push(f"{docker_registry_without_login}/my_busybox", quiet=True)
     docker_client.login(
         docker_registry_without_login, username="my_user", password="my_password"
     )
@@ -28,9 +28,10 @@ def test_login_logout(docker_client: DockerClient, docker_registry_without_login
         docker_registry_without_login
         in (Path.home() / ".docker" / "config.json").read_text()
     )
-    docker_client.push(f"{docker_registry_without_login}/my_busybox")
+    docker_client.push(f"{docker_registry_without_login}/my_busybox", quiet=True)
     docker_client.push(
-        [f"{docker_registry_without_login}/my_busybox" for _ in range(2)]
+        [f"{docker_registry_without_login}/my_busybox" for _ in range(2)],
+        quiet=True,
     )
     docker_client.pull(f"{docker_registry_without_login}/my_busybox")
     docker_client.logout(docker_registry_without_login)

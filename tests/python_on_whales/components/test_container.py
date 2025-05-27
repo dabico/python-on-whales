@@ -1390,7 +1390,7 @@ def test_create_missing_pull_existent(
 
     base_image = docker_client.image.pull(base_image_name)
     base_image.tag(test_image_name)
-    docker_client.push(test_image_name)
+    docker_client.push(test_image_name, quiet=True)
     remote_id = base_image.id
 
     (tmp_path / "dodo.txt").write_text("Hello world!")
@@ -1423,7 +1423,7 @@ def test_run_missing_pull_existent(
 
     base_image = docker_client.image.pull(base_image_name)
     base_image.tag(test_image_name)
-    docker_client.push(test_image_name)
+    docker_client.push(test_image_name, quiet=True)
     remote_id = base_image.id
 
     (tmp_path / "dodo.txt").write_text("Hello world!")
@@ -1456,7 +1456,7 @@ def test_create_always_pull_existent(
 
     base_image = docker_client.image.pull(base_image_name)
     base_image.tag(test_image_name)
-    docker_client.push(test_image_name)
+    docker_client.push(test_image_name, quiet=True)
     remote_id = base_image.id
 
     (tmp_path / "dodo.txt").write_text("Hello world!")
@@ -1489,7 +1489,7 @@ def test_run_always_pull_existent(
 
     base_image = docker_client.image.pull(base_image_name)
     base_image.tag(test_image_name)
-    docker_client.push(test_image_name)
+    docker_client.push(test_image_name, quiet=True)
     remote_id = base_image.id
 
     (tmp_path / "dodo.txt").write_text("Hello world!")

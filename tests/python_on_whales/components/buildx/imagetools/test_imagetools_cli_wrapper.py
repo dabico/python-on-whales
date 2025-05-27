@@ -38,7 +38,7 @@ def test_imagetools_create_new_image_with_tag(docker_registry):
     busybox = docker.pull("busybox:1")
     base_image = f"{docker_registry}/test:image1"
     docker.tag(busybox, base_image)
-    docker.push(base_image)
+    docker.push(base_image, quiet=True)
     new_image = f"{docker_registry}/test:image2"
     docker.buildx.imagetools.create([base_image], tags=[new_image])
     docker.pull(new_image)
@@ -48,7 +48,7 @@ def test_imagetools_create_new_image_with_tags(docker_registry):
     busybox = docker.pull("busybox:1")
     base_image = f"{docker_registry}/test:image1"
     docker.tag(busybox, base_image)
-    docker.push(base_image)
+    docker.push(base_image, quiet=True)
     new_image_2 = f"{docker_registry}/test:image2"
     new_image_3 = f"{docker_registry}/test:image3"
     docker.buildx.imagetools.create([base_image], tags=[new_image_2, new_image_3])
@@ -62,8 +62,8 @@ def test_imagetools_append(docker_registry):
     base_image_alpine = f"{docker_registry}/test:alpine"
     docker.tag(busybox, base_image_busybox)
     docker.tag(alpine, base_image_alpine)
-    docker.push(base_image_busybox)
-    docker.push(base_image_alpine)
+    docker.push(base_image_busybox, quiet=True)
+    docker.push(base_image_alpine, quiet=True)
     new_image = f"{docker_registry}/test:image2"
     docker.buildx.imagetools.create([base_image_busybox], tags=[new_image])
     docker.buildx.imagetools.create([base_image_alpine], tags=[new_image], append=True)
